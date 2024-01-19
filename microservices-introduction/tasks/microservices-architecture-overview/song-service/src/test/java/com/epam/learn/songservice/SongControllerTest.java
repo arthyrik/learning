@@ -1,6 +1,8 @@
 package com.epam.learn.songservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
+import static org.instancio.Select.field;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,27 +29,25 @@ public class SongControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @Test
-    void createSong() throws Exception {
+    void create() throws Exception {
+        var song = Instancio.of(Song.class)
+                .ignore(field(Song::getId))
+                .create();
+
         mockMvc.perform(post("/songs")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "name": "We are the champions",
-                                    "artist": "Queen",
-                                    "album": "News of the world",
-                                    "length": "2:59",
-                                    "resourceId": "123",
-                                    "year": "1977"
-                                }
-                                """))
+                        .content(objectMapper.writeValueAsString(song)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", isA(Integer.class)));
     }
 
     @Test
-    void getSong() throws Exception {
-        var songId = createEmptySongs(1).get(0);
+    void getById() throws Exception {
+        var songId = createSongs(1).get(0);
 
         mockMvc.perform(get("/songs/" + songId))
                 .andExpect(status().isOk())
@@ -54,14 +55,14 @@ public class SongControllerTest {
     }
 
     @Test
-    void getSong_NotFound() throws Exception {
-        mockMvc.perform(get("/songs/123"))
+    void getById_NotFound() throws Exception {
+        mockMvc.perform(get("/songs/12312"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void deleteSongs() throws Exception {
-        List<Integer> ids = createEmptySongs(3);
+    void deleteById() throws Exception {
+        List<Integer> ids = createSongs(3);
         String idRequestParamValue = ids.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
@@ -71,19 +72,21 @@ public class SongControllerTest {
                 .andExpect(jsonPath("$.ids", hasSize(ids.size())));
     }
 
-    private List<Integer> createEmptySongs(int count) throws Exception {
+    private List<Integer> createSongs(int count) throws Exception {
         List<Integer> ids = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
+            var song = Instancio.of(Song.class)
+                    .ignore(field(Song::getId))
+                    .create();
             var result = mockMvc.perform(post("/songs")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("{}")).andReturn();
+                    .content(objectMapper.writeValueAsString(song)))
+                    .andReturn();
             Integer id = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
             ids.add(id);
         }
 
         return ids;
     }
-
-
 }

@@ -15,30 +15,20 @@ public class SongController {
 
     private final SongRepository songRepository;
 
-    @GetMapping
-    public Iterable<Song> getSongs() {
-        return songRepository.findAll();
+    @PostMapping
+    public Map<String, Integer> create(@RequestBody Song song) {
+        return Map.of("id", songRepository.save(song).getId());
     }
 
     @GetMapping("/{id}")
-    public Song getSong(@PathVariable Integer id) {
-        var song = songRepository.findById(id);
-
-        if (song.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no room with id " + id);
-        }
-
-        return song.get();
+    public Song getById(@PathVariable Integer id) {
+        return songRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no song with id " + id));
     }
 
     @DeleteMapping
-    public Map<String, Iterable<Integer>> deleteSongs(@RequestParam("id") List<Integer> ids) {
+    public Map<String, Iterable<Integer>> deleteById(@RequestParam("id") List<Integer> ids) {
         songRepository.deleteAllById(ids);
         return Map.of("ids", ids);
-    }
-
-    @PostMapping
-    public Map<String, Integer> createSong(@RequestBody Song song) {
-        return Map.of("id", songRepository.save(song).getId());
     }
 }

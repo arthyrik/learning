@@ -13,6 +13,7 @@ public class Song {
     private String artist;
     private String album;
     private String length;
+    @Column(unique = true)
     private String resourceId;
     private String year;
 }
