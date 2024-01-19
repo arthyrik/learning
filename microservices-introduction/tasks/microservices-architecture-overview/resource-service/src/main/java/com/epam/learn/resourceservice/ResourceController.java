@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -87,4 +88,6 @@ public class ResourceController {
 
         restTemplate.postForObject(songServiceUrl, request, String.class);
     }
+    //todo: create MetadataService (or SongService)
+    //todo: delete metadata when deleting resource
 }
