@@ -16,7 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +27,7 @@ import static java.util.stream.Collectors.toMap;
 @RequiredArgsConstructor
 public class ResourceController {
 
-    @Value("${songService.url}")
-    private String songServiceUrl;
-
-    private final RestTemplate restTemplate;
+    private final SongService songService;
     private final ResourceRepository resourceRepository;
 
     @PostMapping
@@ -41,8 +37,8 @@ public class ResourceController {
 
         resource = resourceRepository.save(resource);
 
-        Map<String, String> metadata = extractMetadata(resource.getData());
-        saveMetadata(resource, metadata);
+        Map<String, String> metadata = SongService.extractMetadata(resource.getData());
+        songService.saveMetadata(resource, metadata);
 
         return Map.of("id", resource.getId());
     }
@@ -64,30 +60,4 @@ public class ResourceController {
 
         return Map.of("ids", ids);
     }
-
-    private static Map<String, String> extractMetadata(byte[] audioData) throws IOException {
-        Metadata metadata = new Metadata();
-        new Tika().parse(new ByteArrayInputStream(audioData), metadata);
-
-        return Arrays.stream(metadata.names())
-                .collect(toMap(name -> name, metadata::get));
-    }
-
-    private void saveMetadata(Resource resource, Map<String, String> metadata) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        Song song = new Song(
-                metadata.get("xmpDM:name"),
-                metadata.get("xmpDM:artist"),
-                metadata.get("xmpDM:album"),
-                metadata.get("xmpDM:duration"),
-                String.valueOf(resource.getId()),
-                metadata.get("xmpDM:releaseDate")
-        );
-        HttpEntity<Song> request = new HttpEntity<>(song, headers);
-
-        restTemplate.postForObject(songServiceUrl, request, String.class);
-    }
-    //todo: create MetadataService (or SongService)
-    //todo: delete metadata when deleting resource
 }
