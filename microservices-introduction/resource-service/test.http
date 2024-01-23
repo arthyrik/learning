@@ -1,5 +1,5 @@
 ### Send a form with the text and file fields
-POST http://localhost:8181/resources
+POST http://localhost:8080/resources
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 --WebAppBoundary
@@ -9,7 +9,7 @@ Content-Disposition: form-data; name="file"; filename="test.mp3"
 --WebAppBoundary--
 
 ###
-GET http://localhost:8181/resources/1
+GET http://localhost:8080/resources/1
 
 ###
-DELETE http://localhost:8181/resources/1
+DELETE http://localhost:8080/resources/1

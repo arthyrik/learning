@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  resources-service:
+    container_name: resource-service
+    build:
+      context: resource-service
+    image: resource-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - resource-database
+      - song-service
+
+  song-service:
+    container_name: song-service
+    build:
+      context: song-service
+    image: song-service:latest
+    ports:
+      - "8081:8080"
+    depends_on:
+      - song-database
+
+  resource-database:
+    container_name: resource-database
+    image: postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=${resource_database_password}
+      - POSTGRES_DB=${resource_database}
+
+  song-database:
+    container_name: song-database
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=${song_database_password}
+      - POSTGRES_DB=${song_database}
