@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.epam.learn</groupId>
-	<artifactId>microservices-architecture-overview</artifactId>
+	<artifactId>microservices-introduction</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>microservices-architecture-overview</name>
 	<packaging>pom</packaging>

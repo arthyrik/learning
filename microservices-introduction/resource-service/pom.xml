@@ -4,17 +4,21 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.epam.learn</groupId>
-		<artifactId>microservices-architecture-overview</artifactId>
+		<artifactId>microservices-introduction</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>com.epam.learn</groupId>
-	<artifactId>song-service</artifactId>
+	<artifactId>resource-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>song-service</name>
+	<name>resource-service</name>
 	<dependencies>
 		<dependency>
-			<groupId>org.instancio</groupId>
-			<artifactId>instancio-core</artifactId>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers-standard-package</artifactId>
 		</dependency>
     </dependencies>
 </project>
