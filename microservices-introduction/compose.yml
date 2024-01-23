@@ -1,10 +1,11 @@
 version: '3'
 
 services:
-  resources-service:
+  resource-service:
     container_name: resource-service
     build:
-      context: resource-service
+      args:
+        - baseDir=resource-service
     image: resource-service
     ports:
       - "8080:8080"
@@ -15,7 +16,8 @@ services:
   song-service:
     container_name: song-service
     build:
-      context: song-service
+      args:
+        - baseDir=song-service
     image: song-service:latest
     ports:
       - "8081:8080"
