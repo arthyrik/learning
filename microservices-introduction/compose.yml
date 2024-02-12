@@ -1,6 +1,17 @@
 version: '3'
 
 services:
+  eureka-server:
+    container_name: eureka-server
+    build:
+      args:
+        - baseDir=eureka-server
+    image: eureka-server
+    ports:
+      - "8888:${EUREKA_SERVER_PORT}"
+    environment:
+      - SERVER_PORT=${EUREKA_SERVER_PORT}
+
   resource-service:
     container_name: resource-service
     build:
@@ -9,20 +20,33 @@ services:
     image: resource-service
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://resource-database:5432/${RESOURCE_DATABASE_NAME}
+      - SPRING_DATASOURCE_USERNAME=${RESOURCE_DATABASE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${RESOURCE_DATABASE_PASSWORD}
+      - EUREKA_URI=http://eureka-server:${EUREKA_SERVER_PORT}/eureka
     depends_on:
       - resource-database
       - song-service
+      - eureka-server
 
   song-service:
-    container_name: song-service
     build:
       args:
         - baseDir=song-service
-    image: song-service:latest
-    ports:
-      - "8081:8080"
+    image: song-service
+    deploy:
+      mode: replicated
+      replicas: 2
+    environment:
+      - SERVER_PORT=0
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://song-database:5432/${SONG_DATABASE_NAME}
+      - SPRING_DATASOURCE_USERNAME=${SONG_DATABASE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SONG_DATABASE_PASSWORD}
+      - EUREKA_URI=http://eureka-server:${EUREKA_SERVER_PORT}/eureka
     depends_on:
       - song-database
+      - eureka-server
 
   resource-database:
     container_name: resource-database
@@ -30,8 +54,9 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_PASSWORD=${resource_database_password}
-      - POSTGRES_DB=${resource_database}
+      - POSTGRES_PASSWORD=${RESOURCE_DATABASE_PASSWORD}
+      - POSTGRES_DB=${RESOURCE_DATABASE_NAME}
+      - POSTGRES_USER=${RESOURCE_DATABASE_USERNAME}
 
   song-database:
     container_name: song-database
@@ -39,5 +64,6 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_PASSWORD=${song_database_password}
-      - POSTGRES_DB=${song_database}
+      - POSTGRES_PASSWORD=${SONG_DATABASE_PASSWORD}
+      - POSTGRES_DB=${SONG_DATABASE_NAME}
+      - POSTGRES_USER=${SONG_DATABASE_USERNAME}
