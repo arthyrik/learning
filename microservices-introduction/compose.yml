@@ -53,6 +53,8 @@ services:
     image: postgres
     ports:
       - "5433:5432"
+    volumes:
+      - ./resource-service/src/main/resources:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_PASSWORD=${RESOURCE_DATABASE_PASSWORD}
       - POSTGRES_DB=${RESOURCE_DATABASE_NAME}
@@ -63,6 +65,8 @@ services:
     image: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - ./song-service/src/main/resources:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_PASSWORD=${SONG_DATABASE_PASSWORD}
       - POSTGRES_DB=${SONG_DATABASE_NAME}

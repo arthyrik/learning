@@ -1,17 +1,15 @@
 package com.epam.learn.resourceservice;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
+@SequenceGenerator(name="resource_id_seq", sequenceName = "resource_id_seq", allocationSize = 1)
 @Data
 public class Resource {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "resource_id_seq")
     private Integer id;
     @Lob
     private byte[] data;

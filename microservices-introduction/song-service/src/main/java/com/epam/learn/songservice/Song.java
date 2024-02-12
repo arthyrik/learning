@@ -5,9 +5,10 @@ import lombok.Data;
 
 @Data
 @Entity
+@SequenceGenerator(name="song_id_seq", sequenceName = "song_id_seq", allocationSize = 1)
 public class Song {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "song_id_seq")
     private Integer id;
     private String name;
     private String artist;
