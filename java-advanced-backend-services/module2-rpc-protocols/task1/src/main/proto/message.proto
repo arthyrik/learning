@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "com.epam.learn.rpc";
+option java_multiple_files = true;
+
+service MessageService {
+  rpc ping(Message) returns (Message);
+}
+
+message Message {
+  string message = 1;
+}
