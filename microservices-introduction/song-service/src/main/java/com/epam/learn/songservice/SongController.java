@@ -1,6 +1,7 @@
 package com.epam.learn.songservice;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -11,12 +12,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/songs")
 @RequiredArgsConstructor
+@Slf4j
 public class SongController {
 
     private final SongRepository songRepository;
 
     @PostMapping
     public Map<String, Integer> create(@RequestBody Song song) {
+        log.info("Create song request");
         return Map.of("id", songRepository.save(song).getId());
     }
 
