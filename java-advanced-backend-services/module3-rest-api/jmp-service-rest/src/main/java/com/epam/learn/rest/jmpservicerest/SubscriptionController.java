@@ -1,18 +1,13 @@
 package com.epam.learn.rest.jmpservicerest;
 
-import com.epam.learn.rest.jmpdto.Subscription;
-import com.epam.learn.rest.jmpdto.SubscriptionRequestDto;
-import com.epam.learn.rest.jmpdto.SubscriptionResponseDto;
-import com.epam.learn.rest.jmpdto.User;
+import com.epam.learn.rest.jmpdto.*;
 import com.epam.learn.rest.jmpserviceapi.SubscriptionService;
 import com.epam.learn.rest.jmpserviceapi.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -27,12 +22,18 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
     private final UserService userService;
+    private final SubscriptionMapper mapper;
 
     @PostMapping
     public SubscriptionResponseDto createSubscription(@RequestBody @Valid SubscriptionRequestDto subscriptionRequestDto) {
-        var subscription = fromDto(subscriptionRequestDto);
+        var user = verifyUser(subscriptionRequestDto.getUserId());
+        var subscription = new Subscription();
+        subscription.setUser(user);
+        subscription.setStartDate(LocalDate.now());
 
-        return toDto(subscriptionService.createSubscription(subscription));
+        var createdSubscription = subscriptionService.createSubscription(subscription);
+
+        return mapper.toSubscriptionResponseDto(createdSubscription);
     }
 
     @PutMapping("/{subscriptionId}")
@@ -43,7 +44,9 @@ public class SubscriptionController {
 
         subscription.setUser(newUser);
 
-        return toDto(subscriptionService.updateSubscription(subscription));
+        var updatedSubscription = subscriptionService.updateSubscription(subscription);
+
+        return mapper.toSubscriptionResponseDto(updatedSubscription);
     }
 
     @DeleteMapping("/{subscriptionId}")
@@ -53,13 +56,15 @@ public class SubscriptionController {
 
     @GetMapping("/{subscriptionId}")
     public SubscriptionResponseDto getSubscription(@PathVariable Long subscriptionId) {
-        return toDto(verifySubscription(subscriptionId));
+        var subscription = verifySubscription(subscriptionId);
+
+        return mapper.toSubscriptionResponseDto(subscription);
     }
 
     @GetMapping
     public List<SubscriptionResponseDto> getAllSubscription() {
         return StreamSupport.stream(subscriptionService.getAllSubscription().spliterator(), false)
-                .map(this::toDto).toList();
+                .map(mapper::toSubscriptionResponseDto).toList();
     }
 
     private Subscription verifySubscription(Long subscriptionId) {
@@ -70,25 +75,5 @@ public class SubscriptionController {
     private User verifyUser(Long userId) {
         return userService.getUser(userId)
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "There is no user with id " + userId));
-    }
-
-    private SubscriptionResponseDto toDto(Subscription subscription) {
-        var dto = new SubscriptionResponseDto();
-
-        dto.setId(subscription.getId());
-        dto.setUserId(subscription.getUser().getId());
-        dto.setStartDate(subscription.getStartDate().toString());
-
-        return dto;
-    }
-
-    private Subscription fromDto(SubscriptionRequestDto dto) {
-        var user = verifyUser(dto.getUserId());
-        var subscription = new Subscription();
-
-        subscription.setUser(user);
-        subscription.setStartDate(LocalDate.now());
-
-        return subscription;
     }
 }

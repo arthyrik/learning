@@ -1,21 +1,18 @@
 package com.epam.learn.rest.jmpservicerest;
 
 import com.epam.learn.rest.jmpdto.User;
+import com.epam.learn.rest.jmpdto.UserMapper;
 import com.epam.learn.rest.jmpdto.UserRequestDto;
 import com.epam.learn.rest.jmpdto.UserResponseDto;
 import com.epam.learn.rest.jmpserviceapi.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor
@@ -24,11 +21,14 @@ import java.util.stream.StreamSupport;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper mapper;
 
     @PostMapping
     public UserResponseDto createUser(@RequestBody @Valid UserRequestDto userRequestDto) {
-        var user = userService.createUser(fromDto(userRequestDto));
-        return toDto(user);
+        var user = mapper.toUser(userRequestDto);
+        var createdUser = userService.createUser(user);
+
+        return mapper.toUserResponseDto(createdUser);
     }
 
     @PutMapping("/{userId}")
@@ -39,7 +39,9 @@ public class UserController {
         user.setSurname(userRequestDto.getSurname());
         user.setBirthday(LocalDate.parse(userRequestDto.getBirthday()));
 
-        return toDto(userService.updateUser(user));
+        var updatedUser = userService.updateUser(user);
+
+        return mapper.toUserResponseDto(updatedUser);
     }
 
     @DeleteMapping("/{userId}")
@@ -49,36 +51,19 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public UserResponseDto getUser(@PathVariable Long userId) {
-        return toDto(verifyUser(userId));
+        var user = verifyUser(userId);
+
+        return mapper.toUserResponseDto(user);
     }
 
     @GetMapping
     public List<UserResponseDto> getAllUser() {
         return StreamSupport.stream(userService.getAllUser().spliterator(), false)
-                        .map(this::toDto).toList();
+                        .map(mapper::toUserResponseDto).toList();
     }
 
     private User verifyUser(Long userId) {
         return userService.getUser(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user with id " + userId));
-    }
-
-    private UserResponseDto toDto(User user) {
-        var dto = new UserResponseDto();
-        dto.setId(user.getId());
-        dto.setName(user.getName());
-        dto.setSurname(user.getSurname());
-        dto.setBirthday(String.valueOf(user.getBirthday()));
-
-        return dto;
-    }
-
-    private User fromDto(UserRequestDto dto) {
-        var user = new User();
-        user.setName(dto.getName());
-        user.setSurname(dto.getSurname());
-        user.setBirthday(LocalDate.parse(dto.getBirthday()));
-
-        return user;
     }
 }
