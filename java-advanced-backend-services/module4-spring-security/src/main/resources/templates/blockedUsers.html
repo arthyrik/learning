@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:insert="~{fragments::header}"></div>
+    <h1>BLOCKED USERS</h1>
+
+    <table>
+        <tr th:each="user : ${blockedUsers}">
+            <td th:text="${user.key.username}"/>
+            <td th:text="${user.value.blockedTimestamp}"/>
+            <td th:text="${user.value.blockedUntilTimestamp}"/>
+        </tr>
+    </table>
+</body>
+</html>

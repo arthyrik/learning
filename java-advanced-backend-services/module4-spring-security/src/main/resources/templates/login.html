@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div style="width: 200px; margin: 300px auto; text-align: center;">
+        <div th:if="${param.error}">
+            <div th:if="${accountLocked == true}">
+                ACCOUNT LOCKED
+            </div>
+            <div th:if="${accountLocked != true}">
+                INVALID CREDENTIALS
+            </div>
+        </div>
+        <div th:if="${param.logout}">
+            <p>LOGOUT SUCCESSFULLY</p>
+        </div>
+        <form th:action="@{/login}" method="post">
+        <div>
+            <p>
+                <input type="text" name="username" placeholder="username" required/>
+            </p>
+            <p>
+                <input type="password" name="password" placeholder="password" required />
+            </p>
+            <p>
+                <input type="submit" value="Login" />
+            </p>
+        </div>
+    </form>
+    </div>
+</body>
+</html>

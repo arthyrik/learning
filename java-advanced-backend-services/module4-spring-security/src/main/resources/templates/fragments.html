@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul th:fragment="header">
+    <li><a th:href="@{/info}">Info</a></li>
+    <li><a th:href="@{/admin}">Admin</a></li>
+    <li><a th:href="@{/blocked-users}">Blocked Users</a></li>
+    <li><a th:href="@{/logout}">Logout</a></li>
+</ul>
+</body>
+</html>
