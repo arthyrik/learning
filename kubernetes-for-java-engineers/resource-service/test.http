@@ -1,0 +1,15 @@
+### Send a form with the text and file fields
+POST http://localhost:30200/resources
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.mp3"
+
+< ./src/test/resources/test.mp3
+--WebAppBoundary--
+
+###
+GET http://localhost:30200/resources/1
+
+###
+DELETE http://localhost:30200/resources/1
