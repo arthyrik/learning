@@ -41,13 +41,22 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_USERNAME
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: postgres-user
             - name: SPRING_DATASOURCE_PASSWORD
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: postgres-password
             - name: SERVER_PORT
               value: '8080'
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://resource-db-service:5432/resource-db
+              valueFrom:
+                configMapKeyRef:
+                  name: app-configs
+                  key: resource-db-url
             - name: SONGSERVICE_URL
               value: http://song-app-service:8080/songs
 
@@ -90,11 +99,20 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_USER
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: postgres-user
             - name: POSTGRES_PASSWORD
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: postgres-password
             - name: POSTGRES_DB
-              value: resource-db
+              valueFrom:
+                configMapKeyRef:
+                  name: app-configs
+                  key: resource-db-name
           volumeMounts:
             - name: resource-db-storage
               mountPath: /data
